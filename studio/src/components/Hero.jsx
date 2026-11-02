@@ -51,22 +51,22 @@ export default function Hero({ onSearchDrug }) {
     <section className="relative min-h-[90vh] pt-32 pb-16 md:pt-40 md:pb-24 flex flex-col justify-between overflow-hidden">
       
       {/* Background Subtle Dot Grid */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[radial-gradient(#121212_1px,transparent_1px)] [background-size:28px_28px]" />
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05] bg-[radial-gradient(#121212_1px,transparent_1px)] dark:bg-[radial-gradient(#F5F2EB_1px,transparent_1px)] [background-size:28px_28px]" />
 
       <div className="max-w-[1720px] mx-auto px-6 md:px-12 w-full relative z-10 flex-1 flex flex-col justify-between">
         
         {/* Top Minimal Ticker */}
-        <div className="flex items-center justify-between border-b border-[#121212]/10 pb-4 mb-8 font-mono-code text-xs uppercase tracking-wider text-[#6E6C65]">
+        <div className="flex items-center justify-between border-b border-[#121212]/10 dark:border-white/10 pb-4 mb-8 font-mono-code text-xs uppercase tracking-wider text-[#6E6C65] dark:text-[#9E9C96]">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#FF3E14]" />
-            <span className="text-[#121212] font-semibold">AGENTIC DRUG SAFETY</span>
-            <span className="text-[#6E6C65]/60">&mdash;</span>
+            <span className="text-[#121212] dark:text-[#F5F2EB] font-semibold">AGENTIC DRUG SAFETY</span>
+            <span className="text-[#6E6C65]/60 dark:text-white/40">&mdash;</span>
             <span className="hidden sm:inline">PUBLIC FDA & PUBMED DATA</span>
           </div>
-          <span className="text-[#6E6C65]">RESEARCH PROTOTYPE</span>
+          <span className="text-[#6E6C65] dark:text-[#9E9C96]">RESEARCH PROTOTYPE</span>
         </div>
 
-        {/* Giant Hero Typography (carefully scaled so it NEVER wraps or truncates) */}
+        {/* Giant Hero Typography */}
         <motion.div 
           variants={containerVariants}
           initial="hidden"
@@ -77,10 +77,10 @@ export default function Hero({ onSearchDrug }) {
           <div className="overflow-hidden">
             <motion.h1 
               variants={lineVariants}
-              className="font-display font-extrabold text-5xl sm:text-7xl md:text-8xl lg:text-[7.5vw] leading-[0.95] tracking-[-0.04em] text-[#121212] flex items-center flex-wrap gap-x-3 md:gap-x-6"
+              className="font-display font-extrabold text-5xl sm:text-7xl md:text-8xl lg:text-[7.5vw] leading-[0.95] tracking-[-0.04em] text-[#121212] dark:text-[#F5F2EB] flex items-center flex-wrap gap-x-3 md:gap-x-6"
             >
               <span>VIGIL</span>
-              <span className="inline-block relative w-[14vw] sm:w-[12vw] h-[5vw] sm:h-[4.5vw] rounded-full overflow-hidden border border-[#121212]/20 my-auto shadow-inner">
+              <span className="inline-block relative w-[14vw] sm:w-[12vw] h-[5vw] sm:h-[4.5vw] rounded-full overflow-hidden border border-[#121212]/20 dark:border-white/20 my-auto shadow-inner">
                 <img 
                   src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80" 
                   alt="Medicine" 
@@ -95,7 +95,7 @@ export default function Hero({ onSearchDrug }) {
           <div className="overflow-hidden mt-1 md:mt-2">
             <motion.h1 
               variants={lineVariants}
-              className="font-display font-extrabold text-5xl sm:text-7xl md:text-8xl lg:text-[7.5vw] leading-[0.95] tracking-[-0.04em] text-[#121212] flex items-center flex-wrap gap-x-3 md:gap-x-6"
+              className="font-display font-extrabold text-5xl sm:text-7xl md:text-8xl lg:text-[7.5vw] leading-[0.95] tracking-[-0.04em] text-[#121212] dark:text-[#F5F2EB] flex items-center flex-wrap gap-x-3 md:gap-x-6"
             >
               <span className="text-[#FF3E14] italic font-normal tracking-[-0.02em] font-sans">AGENTIC</span>
               <span>DRUG</span>
@@ -106,19 +106,19 @@ export default function Hero({ onSearchDrug }) {
           <div className="overflow-hidden mt-1 md:mt-2">
             <motion.h1 
               variants={lineVariants}
-              className="font-display font-extrabold text-5xl sm:text-7xl md:text-8xl lg:text-[7.5vw] leading-[0.95] tracking-[-0.04em] text-[#121212]"
+              className="font-display font-extrabold text-5xl sm:text-7xl md:text-8xl lg:text-[7.5vw] leading-[0.95] tracking-[-0.04em] text-[#121212] dark:text-[#F5F2EB]"
             >
               SAFETY<span className="text-[#FF3E14]">.</span>
             </motion.h1>
           </div>
         </motion.div>
 
-        {/* Bottom Hero Layout: Simple description & direct search input */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-end border-t border-[#121212]/10 pt-8 mt-6">
+        {/* Bottom Hero Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-end border-t border-[#121212]/10 dark:border-white/10 pt-8 mt-6">
           
           {/* Column 1: Clean summary */}
           <div className="md:col-span-5">
-            <p className="font-sans text-base md:text-lg text-[#121212]/80 leading-relaxed">
+            <p className="font-sans text-base md:text-lg text-[#121212]/80 dark:text-white/80 leading-relaxed">
               An AI safety scientist built with LangGraph. It analyzes openFDA adverse events, calculates disproportionality statistics in Python tools (never in the LLM), and cross-checks FDA drug labels.
             </p>
           </div>
@@ -127,18 +127,18 @@ export default function Hero({ onSearchDrug }) {
           <div className="md:col-span-5">
             <form onSubmit={handleSubmit} className="flex gap-2">
               <div className="relative flex-1">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6E6C65]" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6E6C65] dark:text-[#9E9C96]" />
                 <input
                   type="text"
                   value={inputDrug}
                   onChange={(e) => setInputDrug(e.target.value)}
                   placeholder="Enter a drug (e.g. Atorvastatin, Ozempic, Naxdom 250)..."
-                  className="w-full pl-10 pr-4 py-3 bg-white border border-[#121212]/15 rounded-xl text-sm font-sans focus:outline-none focus:border-[#121212] transition-colors"
+                  className="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#151518] border border-[#121212]/15 dark:border-white/15 text-[#121212] dark:text-[#F5F2EB] rounded-xl text-sm font-sans focus:outline-none focus:border-[#121212] dark:focus:border-[#F5F2EB] transition-colors"
                 />
               </div>
               <button
                 type="submit"
-                className="px-5 py-3 rounded-xl bg-[#121212] text-[#F5F2EB] font-mono-code text-xs uppercase tracking-wider font-semibold hover:bg-[#FF3E14] transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                className="px-5 py-3 rounded-xl bg-[#121212] dark:bg-[#F5F2EB] text-[#F5F2EB] dark:text-[#0C0C0D] font-mono-code text-xs uppercase tracking-wider font-semibold hover:bg-[#FF3E14] dark:hover:bg-[#FF3E14] dark:hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
               >
                 <span>SEARCH</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -146,14 +146,14 @@ export default function Hero({ onSearchDrug }) {
             </form>
 
             {/* Quick pre-fill chips */}
-            <div className="flex flex-wrap items-center gap-1.5 mt-3 text-[11px] font-mono-code text-[#6E6C65]">
+            <div className="flex flex-wrap items-center gap-1.5 mt-3 text-[11px] font-mono-code text-[#6E6C65] dark:text-[#9E9C96]">
               <span>TRY:</span>
               {['Ozempic', 'Atorvastatin', 'Simvastatin', 'Naxdom 250'].map(d => (
                 <button
                   key={d}
                   type="button"
                   onClick={() => handleChipClick(d)}
-                  className="px-2 py-0.5 rounded bg-[#121212]/5 hover:bg-[#121212] hover:text-[#F5F2EB] border border-[#121212]/10 transition-colors cursor-pointer"
+                  className="px-2 py-0.5 rounded bg-[#121212]/5 dark:bg-white/5 hover:bg-[#121212] dark:hover:bg-white hover:text-[#F5F2EB] dark:hover:text-[#0C0C0D] border border-[#121212]/10 dark:border-white/10 text-[#121212] dark:text-[#F5F2EB] transition-colors cursor-pointer"
                 >
                   {d}
                 </button>
@@ -165,7 +165,7 @@ export default function Hero({ onSearchDrug }) {
           <div className="md:col-span-2 flex md:justify-end">
             <a 
               href="#workbench" 
-              className="inline-flex items-center gap-2 font-mono-code text-xs text-[#6E6C65] hover:text-[#121212] transition-colors"
+              className="inline-flex items-center gap-2 font-mono-code text-xs text-[#6E6C65] dark:text-[#9E9C96] hover:text-[#121212] dark:hover:text-white transition-colors"
             >
               <span>WORKBENCH</span>
               <ArrowDown className="w-3.5 h-3.5" />

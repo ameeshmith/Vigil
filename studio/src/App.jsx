@@ -12,6 +12,21 @@ import Footer from './components/Footer';
 
 export default function App() {
   const [activeDrugForWorkbench, setActiveDrugForWorkbench] = useState('');
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem('vigil_theme');
+    if (saved) return saved === 'dark';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('vigil_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('vigil_theme', 'light');
+    }
+  }, [isDark]);
 
   useEffect(() => {
     // Initialize Lenis smooth scroll
@@ -37,13 +52,17 @@ export default function App() {
     setActiveDrugForWorkbench(drugName);
   };
 
+  const toggleTheme = () => {
+    setIsDark(prev => !prev);
+  };
+
   return (
-    <div className="relative min-h-screen bg-[#F5F2EB] text-[#121212] selection:bg-[#121212] selection:text-[#F5F2EB]">
+    <div className="relative min-h-screen bg-[#F5F2EB] dark:bg-[#0C0C0D] text-[#121212] dark:text-[#F5F2EB] selection:bg-[#121212] dark:selection:bg-[#F5F2EB] selection:text-[#F5F2EB] dark:selection:text-[#0C0C0D] transition-colors duration-300">
       {/* Interactive Custom Cursor */}
       <CustomCursor />
 
-      {/* Global Minimalist Navigation */}
-      <Navbar />
+      {/* Global Minimalist Navigation with Theme Toggle */}
+      <Navbar isDark={isDark} onToggleTheme={toggleTheme} />
 
       {/* Main Vigil AI Content Stack */}
       <main>
