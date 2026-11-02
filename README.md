@@ -28,20 +28,20 @@ Vigil AI is an agentic drug safety copilot that behaves like a junior safety sci
 
 ```mermaid
 graph TD
-    START([User Enters Drug]) --> intake[1. Intake Node\nNormalize name & fetch FAERS reaction pool]
-    intake --> planner[2. Planner Node\nLLM selects safety-critical candidate reactions]
-    planner --> investigator[3. Investigator ReAct Loop\nContingency tables, Stats tool, Label verification]
-    investigator --> writer[4. Writer Node\nCompiles structured assessment & citations]
-    writer --> critic[5. Critic Audit Node\nDeterministic numeric validator & LLM audit]
+    START(["User Enters Drug"]) --> intake["1. Intake Node<br/>Normalize name & fetch FAERS pool"]
+    intake --> planner["2. Planner Node<br/>LLM selects candidate reactions"]
+    planner --> investigator["3. Investigator ReAct Loop<br/>Contingency tables & Label checks"]
+    investigator --> writer["4. Writer Node<br/>Compiles structured assessment"]
+    writer --> critic["5. Critic Audit Node<br/>Deterministic numeric check"]
     
-    critic -- Audit Failed & loops < 2 --\> writer
-    critic -- Audit Passed --\> human_review{6. Human Review Gate\nCheck for unlabeled signals}
+    critic -->|"Audit Failed (loops < 2)"| writer
+    critic -->|"Audit Passed"| human_review{"6. Human Review Gate<br/>Check for unlabeled signals"}
     
-    human_review -- No Unlabeled Signals --\> END([Final Structured Output])
-    human_review -- Unlabeled Signal / Thin Evidence --\> interrupt[LangGraph Interrupt\nClinician Review Action]
+    human_review -->|"No Unlabeled Signals"| END(["Final Structured Output"])
+    human_review -->|"Unlabeled Signal / Thin Evidence"| interrupt["LangGraph Interrupt<br/>Human Safety Review Action"]
     
-    interrupt -- Approve / Edit --\> END
-    interrupt -- Investigate More --\> investigator
+    interrupt -->|"Approve / Edit"| END
+    interrupt -->|"Investigate More"| investigator
 ```
 
 ---
