@@ -10,6 +10,15 @@ export default defineConfig({
     tailwindcss()
   ],
   base: '/',
+  server: {
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true
+      }
+    }
+  },
   build: {
     outDir: path.resolve(__dirname, '../static'),
     emptyOutDir: false,

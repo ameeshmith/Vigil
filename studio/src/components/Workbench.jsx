@@ -19,6 +19,14 @@ import {
 } from 'lucide-react';
 
 export default function Workbench({ externalDrug, onDrugProcessed }) {
+  const getApiBase = () => {
+    if (typeof window !== 'undefined' && window.location.port && window.location.port !== '8000') {
+      return `http://${window.location.hostname}:8000`;
+    }
+    return '';
+  };
+  const API_BASE = getApiBase();
+
   const [drug, setDrug] = useState('');
   const [activeRunId, setActiveRunId] = useState(null);
   const [runStatus, setRunStatus] = useState('idle'); // idle | running | review | done | error
@@ -93,7 +101,7 @@ export default function Workbench({ externalDrug, onDrugProcessed }) {
     setCompleteRunData(null);
 
     try {
-      const resp = await fetch('/api/runs', {
+      const resp = await fetch(`${API_BASE}/api/runs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ drug: targetDrug })
@@ -109,7 +117,7 @@ export default function Workbench({ externalDrug, onDrugProcessed }) {
     } catch (err) {
       setRunStatus('error');
       setStatusMessage('ERROR');
-      addTraceLog('error', 'API CONNECTION ERROR', err.message);
+      addTraceLog('error', 'API CONNECTION ERROR', `${err.message}. Ensure backend is running (python run.py) on port 8000.`);
     }
   };
 
@@ -129,7 +137,7 @@ export default function Workbench({ externalDrug, onDrugProcessed }) {
   };
 
   const connectToSSE = (runId) => {
-    const es = new EventSource(`/api/runs/${runId}/events`);
+    const es = new EventSource(`${API_BASE}/api/runs/${runId}/events`);
     eventSourceRef.current = es;
 
     es.addEventListener('node_start', (e) => {
@@ -213,7 +221,7 @@ export default function Workbench({ externalDrug, onDrugProcessed }) {
     setIsSubmittingReview(true);
 
     try {
-      const resp = await fetch(`/api/runs/${activeRunId}/review`, {
+      const resp = await fetch(`${API_BASE}/api/runs/${activeRunId}/review`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
