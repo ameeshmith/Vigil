@@ -1,0 +1,2 @@
+# SafetyScientist MCP Server package
+
