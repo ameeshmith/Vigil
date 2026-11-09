@@ -97,7 +97,10 @@ async def search_faers_reactions(drug: str, limit: int = 15) -> Dict[str, Any]:
     - retrieved_at: ISO 8601 retrieval timestamp
     - disclaimer: Educational/research disclaimer
     """
-    return await openfda.search_faers_reactions(drug=drug, limit=limit)
+    print(f"[Vigil MCP] search_faers_reactions called: drug={drug!r}, limit={limit}", file=sys.stderr)
+    res = await openfda.search_faers_reactions(drug=drug, limit=limit)
+    print(f"[Vigil MCP] search_faers_reactions result: status={res.get('status')}, reactions={res.get('count_reactions')}, matched={res.get('matched_drug')}", file=sys.stderr)
+    return res
 
 
 @mcp.tool()
@@ -122,7 +125,10 @@ async def get_faers_totals(drug: str, reaction: str) -> Dict[str, Any]:
     OUTPUTS:
     - a, b, c, d integers, totals, source_urls, data_source, retrieved_at, disclaimer.
     """
-    return await openfda.get_faers_totals(drug=drug, reaction=reaction)
+    print(f"[Vigil MCP] get_faers_totals called: drug={drug!r}, reaction={reaction!r}", file=sys.stderr)
+    res = await openfda.get_faers_totals(drug=drug, reaction=reaction)
+    print(f"[Vigil MCP] get_faers_totals result: status={res.get('status')}, a={res.get('a')}, b={res.get('b')}, c={res.get('c')}, d={res.get('d')}", file=sys.stderr)
+    return res
 
 
 @mcp.tool()
@@ -152,7 +158,10 @@ def compute_disproportionality(a: int, b: int, c: int, d: int) -> Dict[str, Any]
     - chi_square (Yates' corrected)
     - signal_flag: boolean (Evans criteria met)
     """
-    return compute_stats(a=a, b=b, c=c, d=d)
+    print(f"[Vigil MCP] compute_disproportionality called: a={a}, b={b}, c={c}, d={d}", file=sys.stderr)
+    res = compute_stats(a=a, b=b, c=c, d=d)
+    print(f"[Vigil MCP] compute_disproportionality result: prr={res.get('prr')}, ror={res.get('ror')}, chi2={res.get('chi_square')}, signal={res.get('signal_flag')}", file=sys.stderr)
+    return res
 
 
 @mcp.tool()
@@ -172,7 +181,10 @@ async def get_label_sections(drug: str) -> Dict[str, Any]:
     - has_label: boolean indicating whether FDA label was located
     - source_url, data_source, retrieved_at, disclaimer.
     """
-    return await openfda.get_label_sections(drug=drug)
+    print(f"[Vigil MCP] get_label_sections called: drug={drug!r}", file=sys.stderr)
+    res = await openfda.get_label_sections(drug=drug)
+    print(f"[Vigil MCP] get_label_sections result: status={res.get('status')}, has_label={res.get('has_label')}, matched={res.get('matched_drug')}", file=sys.stderr)
+    return res
 
 
 @mcp.tool()
@@ -193,7 +205,10 @@ async def check_reaction_in_label(drug: str, reaction: str) -> Dict[str, Any]:
     - section: Matching label section name ('boxed_warning', 'warnings_and_precautions', 'adverse_reactions', or 'None')
     - snippet: Contextual verbatim snippet (< 500 characters) showing the exact labeling text
     """
-    return await openfda.check_reaction_in_label(drug=drug, reaction=reaction)
+    print(f"[Vigil MCP] check_reaction_in_label called: drug={drug!r}, reaction={reaction!r}", file=sys.stderr)
+    res = await openfda.check_reaction_in_label(drug=drug, reaction=reaction)
+    print(f"[Vigil MCP] check_reaction_in_label result: is_in_label={res.get('is_in_label')}, section={res.get('section')}, matched={res.get('matched_drug')}", file=sys.stderr)
+    return res
 
 
 @mcp.tool()

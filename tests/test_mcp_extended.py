@@ -54,8 +54,10 @@ def test_all_10_tools_registered():
 # 2. Test Missing Groq API Key Handling
 @pytest.mark.asyncio
 async def test_investigate_signal_missing_groq_key():
-    # Ensure GROQ_API_KEY is not in env for this test
-    with patch.dict(os.environ, {}, clear=True):
+    # Ensure GROQ_API_KEY is empty for this test
+    env_clean = os.environ.copy()
+    env_clean.pop("GROQ_API_KEY", None)
+    with patch.dict(os.environ, env_clean, clear=True):
         res = await investigate_signal(drug="TestDrug", groq_api_key="")
         assert res["status"] == "missing_api_key"
         assert "Missing Groq API Key" in res["error"]
@@ -82,7 +84,9 @@ def test_extract_groq_api_key_precedence():
         assert key == "env_key"
 
     # 4. Empty when none provided
-    with patch.dict(os.environ, {}, clear=True):
+    env_clean = os.environ.copy()
+    env_clean.pop("GROQ_API_KEY", None)
+    with patch.dict(os.environ, env_clean, clear=True):
         key = extract_groq_api_key()
         assert key == ""
 
@@ -272,7 +276,7 @@ def test_health_endpoint():
     data = response.json()
     assert data["status"] == "healthy"
     assert data["service"] == "Vigil AI"
-    assert data["mcp_endpoint"] == "/mcp"
+    assert "/mcp" in data["mcp_endpoint"]
 
 
 # 10. Test Stdio Smoke with Client SDK

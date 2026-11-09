@@ -2,7 +2,7 @@ import os
 import time
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from api.routes import router as api_router
@@ -59,18 +59,22 @@ async def health_check():
         "status": "healthy",
         "service": "Vigil AI",
         "version": "2.4.0",
-        "mcp_endpoint": "/mcp",
-        "transport": "Streamable HTTP & SSE",
+        "mcp_endpoint": "/mcp/sse",
+        "transport": "SSE",
         "timestamp": current_iso_timestamp()
     })
 
 # Include existing API routes
 app.include_router(api_router)
 
-# Modern MCP Streamable HTTP transport at /mcp
-app.mount("/mcp", mcp.streamable_http_app())
+# Mount FastMCP SSE application
+@app.get("/mcp")
+@app.get("/mcp/")
+async def mcp_redirect():
+    """Convenience redirect to the SSE endpoint."""
+    return RedirectResponse(url="/mcp/sse", status_code=307)
 
-# Fallback Plain SSE transport at /sse
+app.mount("/mcp", mcp.sse_app())
 app.mount("/sse", mcp.sse_app())
 
 # Mount static folder
