@@ -1,10 +1,13 @@
 import os
-from fastapi import FastAPI
+import time
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from api.routes import router as api_router
 from mcp_server.server import mcp
+from mcp_server.cache import TokenBucketRateLimiter
 from mcp_server.constants import current_iso_timestamp
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -15,6 +18,30 @@ app = FastAPI(
     description="Autonomous Drug Safety & Pharmacovigilance Assistant powered by LangGraph, Groq, and FastMCP.",
     version="2.4.0"
 )
+
+# Per-client IP rate limiting to prevent host hammering on public deployment
+CLIENT_LIMITERS = {}
+
+class ClientRateLimitMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        path = request.url.path
+        if path in ("/health", "/", "") or path.startswith(("/static", "/assets")):
+            return await call_next(request)
+
+        client_ip = request.client.host if request.client else "unknown"
+        if client_ip not in CLIENT_LIMITERS:
+            # 60 requests per minute (1 req/sec refill) with burst of 60
+            CLIENT_LIMITERS[client_ip] = TokenBucketRateLimiter(rate=1.0, capacity=60.0)
+
+        limiter = CLIENT_LIMITERS[client_ip]
+        if not await limiter.acquire(1.0):
+            return JSONResponse(
+                status_code=429,
+                content={"error": "Too Many Requests. Per-client rate limit exceeded.", "status": "rate_limited"}
+            )
+        return await call_next(request)
+
+app.add_middleware(ClientRateLimitMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,14 +60,18 @@ async def health_check():
         "service": "Vigil AI",
         "version": "2.4.0",
         "mcp_endpoint": "/mcp",
+        "transport": "Streamable HTTP & SSE",
         "timestamp": current_iso_timestamp()
     })
 
 # Include existing API routes
 app.include_router(api_router)
 
-# Mount FastMCP SSE application at /mcp
-app.mount("/mcp", mcp.sse_app())
+# Modern MCP Streamable HTTP transport at /mcp
+app.mount("/mcp", mcp.streamable_http_app())
+
+# Fallback Plain SSE transport at /sse
+app.mount("/sse", mcp.sse_app())
 
 # Mount static folder
 if os.path.exists(STATIC_DIR):
