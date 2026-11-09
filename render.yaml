@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: vigil-ai-mcp
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: GROQ_CRITIC_MODEL
+        value: llama-3.3-70b-versatile
+      - key: MCP_TRANSPORT
+        value: sse
+

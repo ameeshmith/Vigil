@@ -3,6 +3,8 @@ import httpx
 import re
 import urllib.parse
 from typing import Dict, Any, List, Optional, Tuple
+from mcp_server.cache import TTLCache, TokenBucketRateLimiter
+from mcp_server.constants import DISCLAIMER, current_iso_timestamp
 
 OPENFDA_EVENT_URL = "https://api.fda.gov/drug/event.json"
 OPENFDA_LABEL_URL = "https://api.fda.gov/drug/label.json"
@@ -14,18 +16,27 @@ def strip_drug_dosage(name: str) -> str:
     return cleaned if cleaned else name.strip()
 
 class OpenFDAClient:
-    def __init__(self, timeout: float = 15.0, max_retries: int = 3):
+    def __init__(self, timeout: float = 15.0, max_retries: int = 3, cache_ttl: float = 300.0):
         self.timeout = timeout
         self.max_retries = max_retries
         self._cached_total_faers: Optional[int] = None
+        self.cache = TTLCache(default_ttl=cache_ttl)
+        self.rate_limiter = TokenBucketRateLimiter(rate=10.0, capacity=15.0)
 
     async def _fetch_with_backoff(self, url: str, params: Optional[Dict[str, Any]] = None) -> Tuple[int, Dict[str, Any], str]:
-        """Fetch JSON from openFDA with exponential backoff on rate limits (429) or transient errors."""
+        """Fetch JSON from openFDA with caching, rate-limiting, and exponential backoff on 429s/transient errors."""
         headers = {"User-Agent": "VigilAI/1.0 (Drug Safety Research Demo)"}
         full_url = url
         if params:
             query_string = urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
             full_url = f"{url}?{query_string}"
+
+        cache_key = f"openfda:{full_url}"
+        cached = await self.cache.get(cache_key)
+        if cached is not None:
+            return cached[0], cached[1], cached[2]
+
+        await self.rate_limiter.wait_for_token(1.0)
 
         delay = 1.0
         async with httpx.AsyncClient(timeout=self.timeout) as client:
@@ -33,9 +44,15 @@ class OpenFDAClient:
                 try:
                     response = await client.get(url, params=params, headers=headers)
                     if response.status_code == 200:
-                        return 200, response.json(), str(response.url)
+                        res_json = response.json()
+                        res_url = str(response.url)
+                        await self.cache.set(cache_key, (200, res_json, res_url))
+                        return 200, res_json, res_url
                     elif response.status_code == 404:
-                        return 404, {"error": "Not found in openFDA", "results": []}, str(response.url)
+                        res_json = {"error": "Not found in openFDA", "results": []}
+                        res_url = str(response.url)
+                        await self.cache.set(cache_key, (404, res_json, res_url), ttl=60.0)
+                        return 404, res_json, res_url
                     elif response.status_code == 429:
                         if attempt < self.max_retries:
                             await asyncio.sleep(delay)
@@ -74,6 +91,7 @@ class OpenFDAClient:
         Retrieve top MedDRA reaction terms and counts for a drug.
         Tries generic_name, brand_name, and medicinalproduct across raw and dosage-stripped variants.
         """
+        timestamp = current_iso_timestamp()
         clean_raw = drug.strip().upper()
         clean_stripped = strip_drug_dosage(clean_raw).upper()
 
@@ -106,7 +124,10 @@ class OpenFDAClient:
                     "count_reactions": len(reactions),
                     "reactions": reactions,
                     "source_url": url,
-                    "status": "success"
+                    "data_source": "openFDA FAERS event.json",
+                    "retrieved_at": timestamp,
+                    "status": "success",
+                    "disclaimer": DISCLAIMER
                 }
 
         return {
@@ -115,7 +136,10 @@ class OpenFDAClient:
             "count_reactions": 0,
             "reactions": [],
             "source_url": last_url,
-            "status": "no_data_found"
+            "data_source": "openFDA FAERS event.json",
+            "retrieved_at": timestamp,
+            "status": "no_data_found",
+            "disclaimer": DISCLAIMER
         }
 
     async def get_faers_totals(self, drug: str, reaction: str) -> Dict[str, Any]:
@@ -126,6 +150,7 @@ class OpenFDAClient:
         c = reports with target reaction WITHOUT target drug (total_reaction - a)
         d = reports with neither (total_faers - a - b - c)
         """
+        timestamp = current_iso_timestamp()
         clean_drug = drug.strip().upper()
         clean_rxn = reaction.strip().upper()
 
@@ -189,7 +214,10 @@ class OpenFDAClient:
             "total_reaction": total_reaction,
             "total_faers": total_faers,
             "source_urls": source_urls,
-            "status": "success" if total_drug > 0 else "drug_not_found"
+            "data_source": "openFDA FAERS event.json",
+            "retrieved_at": timestamp,
+            "status": "success" if total_drug > 0 else "drug_not_found",
+            "disclaimer": DISCLAIMER
         }
 
     async def get_label_sections(self, drug: str) -> Dict[str, Any]:
@@ -197,7 +225,9 @@ class OpenFDAClient:
         Retrieve Boxed Warning, Warnings and Precautions, and Adverse Reactions
         sections from openFDA drug labels.
         """
+        timestamp = current_iso_timestamp()
         clean_drug = drug.strip().upper()
+
         queries = [
             f'openfda.generic_name:"{clean_drug}"',
             f'openfda.brand_name:"{clean_drug}"',
@@ -224,7 +254,10 @@ class OpenFDAClient:
                         "adverse_reactions": adverse_reactions[:6000]
                     },
                     "source_url": url,
-                    "status": "success"
+                    "data_source": "openFDA label.json",
+                    "retrieved_at": timestamp,
+                    "status": "success",
+                    "disclaimer": DISCLAIMER
                 }
 
         return {
@@ -236,7 +269,10 @@ class OpenFDAClient:
                 "adverse_reactions": ""
             },
             "source_url": last_url,
-            "status": "label_not_found"
+            "data_source": "openFDA label.json",
+            "retrieved_at": timestamp,
+            "status": "label_not_found",
+            "disclaimer": DISCLAIMER
         }
 
     async def check_reaction_in_label(self, drug: str, reaction: str) -> Dict[str, Any]:
@@ -244,6 +280,7 @@ class OpenFDAClient:
         Check if a reaction term is present in any label section, returning
         the matching section and a context snippet under 500 characters.
         """
+        timestamp = current_iso_timestamp()
         label_res = await self.get_label_sections(drug)
         if not label_res.get("has_label"):
             return {
@@ -252,12 +289,14 @@ class OpenFDAClient:
                 "is_in_label": False,
                 "section": "None",
                 "snippet": "No FDA drug label found for this drug.",
-                "source_url": label_res.get("source_url", OPENFDA_LABEL_URL)
+                "source_url": label_res.get("source_url", OPENFDA_LABEL_URL),
+                "data_source": "openFDA label.json",
+                "retrieved_at": timestamp,
+                "disclaimer": DISCLAIMER
             }
 
         sections = label_res.get("sections", {})
         reaction_terms = [reaction.lower()]
-        # Also stem/split if multi-word (e.g., 'acute kidney injury' -> 'kidney injury')
         parts = reaction.lower().split()
         if len(parts) > 1:
             reaction_terms.append(" ".join(parts[-2:]))
@@ -276,7 +315,6 @@ class OpenFDAClient:
                         snippet = "..." + snippet
                     if end < len(text):
                         snippet = snippet + "..."
-                    # Ensure snippet is under 500 chars
                     snippet = snippet[:490]
                     return {
                         "drug": drug,
@@ -284,7 +322,10 @@ class OpenFDAClient:
                         "is_in_label": True,
                         "section": sec_name,
                         "snippet": snippet,
-                        "source_url": label_res.get("source_url")
+                        "source_url": label_res.get("source_url"),
+                        "data_source": "openFDA label.json",
+                        "retrieved_at": timestamp,
+                        "disclaimer": DISCLAIMER
                     }
 
         return {
@@ -293,6 +334,8 @@ class OpenFDAClient:
             "is_in_label": False,
             "section": "None",
             "snippet": f"The term '{reaction}' does not appear in Boxed Warning, Warnings & Precautions, or Adverse Reactions sections.",
-            "source_url": label_res.get("source_url")
+            "source_url": label_res.get("source_url"),
+            "data_source": "openFDA label.json",
+            "retrieved_at": timestamp,
+            "disclaimer": DISCLAIMER
         }
-

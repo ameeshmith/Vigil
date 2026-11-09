@@ -68,6 +68,7 @@ class AgentState(BaseModel):
     human_review_reason: str = ""
     human_review_input: Optional[Dict[str, Any]] = None
     run_id: str = ""
+    api_key: Optional[str] = None
     events: List[Dict[str, Any]] = Field(default_factory=list)
     error: Optional[str] = None
 

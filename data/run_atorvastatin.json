@@ -1,0 +1,132 @@
+{
+  "run_id": "atorvastatin-sample-run-001",
+  "drug": "Atorvastatin",
+  "status": "completed",
+  "created_at": 1730548800.0,
+  "evidence": {
+    "RHABDOMYOLYSIS": {
+      "reaction": "RHABDOMYOLYSIS",
+      "a": 12450,
+      "b": 112550,
+      "c": 45600,
+      "d": 19830000,
+      "total_drug": 125000,
+      "total_reaction": 58050,
+      "prr": 43.32,
+      "prr_ci_lower": 42.51,
+      "prr_ci_upper": 44.15,
+      "ror": 48.12,
+      "ror_ci_lower": 47.18,
+      "ror_ci_upper": 49.08,
+      "chi_square": 468200.5,
+      "signal_flag": true,
+      "is_in_label": true,
+      "label_section": "warnings_and_precautions",
+      "label_snippet": "Cases of myopathy and rhabdomyolysis with acute renal failure secondary to myoglobinuria have been reported with HMG-CoA reductase inhibitors, including atorvastatin.",
+      "pubmed_articles": [],
+      "source_urls": [
+        "https://api.fda.gov/drug/event.json?search=patient.drug.openfda.generic_name:%22ATORVASTATIN%22+AND+patient.reaction.reactionmeddrapt.exact:%22RHABDOMYOLYSIS%22",
+        "https://api.fda.gov/drug/label.json?search=openfda.generic_name:%22ATORVASTATIN%22"
+      ]
+    },
+    "HEPATIC ENZYME INCREASED": {
+      "reaction": "HEPATIC ENZYME INCREASED",
+      "a": 5420,
+      "b": 119580,
+      "c": 98400,
+      "d": 19780000,
+      "total_drug": 125000,
+      "total_reaction": 103820,
+      "prr": 8.75,
+      "prr_ci_lower": 8.51,
+      "prr_ci_upper": 8.99,
+      "ror": 9.11,
+      "ror_ci_lower": 8.86,
+      "ror_ci_upper": 9.36,
+      "chi_square": 38120.4,
+      "signal_flag": true,
+      "is_in_label": true,
+      "label_section": "warnings_and_precautions",
+      "label_snippet": "Increases in serum transaminases (AST or ALT) to greater than 3 times ULN on 2 or more occasions occurred in 0.7% of patients in clinical trials.",
+      "pubmed_articles": [],
+      "source_urls": [
+        "https://api.fda.gov/drug/event.json?search=patient.drug.openfda.generic_name:%22ATORVASTATIN%22+AND+patient.reaction.reactionmeddrapt.exact:%22HEPATIC+ENZYME+INCREASED%22"
+      ]
+    },
+    "ACUTE PANCREATITIS": {
+      "reaction": "ACUTE PANCREATITIS",
+      "a": 1120,
+      "b": 123880,
+      "c": 62000,
+      "d": 19810000,
+      "total_drug": 125000,
+      "total_reaction": 63120,
+      "prr": 2.87,
+      "prr_ci_lower": 2.70,
+      "prr_ci_upper": 3.04,
+      "ror": 2.89,
+      "ror_ci_lower": 2.72,
+      "ror_ci_upper": 3.07,
+      "chi_square": 1420.8,
+      "signal_flag": true,
+      "is_in_label": false,
+      "label_section": "None",
+      "label_snippet": "Not documented in warnings or adverse reactions.",
+      "pubmed_articles": [
+        {
+          "pmid": "28372605",
+          "title": "Statin-induced acute pancreatitis: A systematic review of pharmacovigilance data.",
+          "year": "2017",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/28372605/"
+        }
+      ],
+      "source_urls": [
+        "https://api.fda.gov/drug/event.json?search=patient.drug.openfda.generic_name:%22ATORVASTATIN%22+AND+patient.reaction.reactionmeddrapt.exact:%22ACUTE+PANCREATITIS%22",
+        "https://pubmed.ncbi.nlm.nih.gov/28372605/"
+      ]
+    }
+  },
+  "assessment": {
+    "drug": "Atorvastatin",
+    "executive_summary": "Pharmacovigilance surveillance for Atorvastatin identified established labeled signals for Rhabdomyolysis and Hepatic Enzyme Elevation, along with a statistically significant unlabeled signal for Acute Pancreatitis.",
+    "signals": [
+      {
+        "reaction": "RHABDOMYOLYSIS",
+        "prr": 43.32,
+        "ror": 48.12,
+        "signal_flag": true,
+        "is_in_label": true,
+        "label_status": "Labeled (warnings_and_precautions)",
+        "clinical_note": "Expected class effect; well-documented in FDA package insert."
+      },
+      {
+        "reaction": "HEPATIC ENZYME INCREASED",
+        "prr": 8.75,
+        "ror": 9.11,
+        "signal_flag": true,
+        "is_in_label": true,
+        "label_status": "Labeled (warnings_and_precautions)",
+        "clinical_note": "Transaminase elevations monitored routinely in clinical practice."
+      },
+      {
+        "reaction": "ACUTE PANCREATITIS",
+        "prr": 2.87,
+        "ror": 2.89,
+        "signal_flag": true,
+        "is_in_label": false,
+        "label_status": "UNLABELED in FDA insert",
+        "clinical_note": "Unlabeled signal meeting Evans criteria; corroborated by published literature (PMID 28372605)."
+      }
+    ],
+    "detailed_findings": "Analysis of FAERS post-marketing reports for Atorvastatin confirms expected musculoskeletal and hepatobiliary safety signals. Rhabdomyolysis demonstrates a marked reporting disproportionality (PRR 43.32, ROR 48.12, Chi² 468,200), consistent with established HMG-CoA reductase inhibitor class warnings. Transaminase increases are also elevated (PRR 8.75). Crucially, Acute Pancreatitis emerged as an unlabeled statistical signal (PRR 2.87, 95% CI 2.70-3.04, Chi² 1420.8), warranting continued periodic surveillance.",
+    "clinical_recommendation": "Maintain vigilance for muscle symptoms and liver function; note prospective literature associations regarding rare drug-induced pancreatitis.",
+    "limitations": "FAERS data consists of voluntary spontaneous submissions subject to notoriety bias, underreporting, and duplicate reporting. These figures represent statistical associations and cannot calculate incidence rates or establish medical causality.",
+    "disclaimer": "Educational demonstration only. Not intended for individual clinical decision making.",
+    "citations": [
+      "https://api.fda.gov/drug/event.json?search=patient.drug.openfda.generic_name:%22ATORVASTATIN%22",
+      "https://api.fda.gov/drug/label.json?search=openfda.generic_name:%22ATORVASTATIN%22",
+      "https://pubmed.ncbi.nlm.nih.gov/28372605/"
+    ]
+  }
+}
+

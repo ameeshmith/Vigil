@@ -1,0 +1,132 @@
+{
+  "run_id": "ozempic-sample-run-002",
+  "drug": "Ozempic",
+  "status": "completed",
+  "created_at": 1730552400.0,
+  "evidence": {
+    "PANCREATITIS": {
+      "reaction": "PANCREATITIS",
+      "a": 3840,
+      "b": 42160,
+      "c": 48200,
+      "d": 19890000,
+      "total_drug": 46000,
+      "total_reaction": 52040,
+      "prr": 34.42,
+      "prr_ci_lower": 33.31,
+      "prr_ci_upper": 35.56,
+      "ror": 37.62,
+      "ror_ci_lower": 36.38,
+      "ror_ci_upper": 38.89,
+      "chi_square": 118400.2,
+      "signal_flag": true,
+      "is_in_label": true,
+      "label_section": "warnings_and_precautions",
+      "label_snippet": "In clinical trials of OZEMPIC, acute pancreatitis was reported in 0.3% of patients. If pancreatitis is suspected, discontinue OZEMPIC promptly.",
+      "pubmed_articles": [],
+      "source_urls": [
+        "https://api.fda.gov/drug/event.json?search=patient.drug.openfda.brand_name:%22OZEMPIC%22+AND+patient.reaction.reactionmeddrapt.exact:%22PANCREATITIS%22",
+        "https://api.fda.gov/drug/label.json?search=openfda.brand_name:%22OZEMPIC%22"
+      ]
+    },
+    "GASTROPARESIS": {
+      "reaction": "GASTROPARESIS",
+      "a": 1820,
+      "b": 44180,
+      "c": 9200,
+      "d": 19930000,
+      "total_drug": 46000,
+      "total_reaction": 11020,
+      "prr": 85.73,
+      "prr_ci_lower": 81.55,
+      "prr_ci_upper": 90.12,
+      "ror": 89.24,
+      "ror_ci_lower": 84.85,
+      "ror_ci_upper": 93.86,
+      "chi_square": 142100.8,
+      "signal_flag": true,
+      "is_in_label": false,
+      "label_section": "None",
+      "label_snippet": "Severe gastroparesis is not explicitly detailed in the warnings section.",
+      "pubmed_articles": [
+        {
+          "pmid": "37801348",
+          "title": "Risk of Gastrointestinal Adverse Events Associated With Glucagon-Like Peptide-1 Receptor Agonists for Weight Loss.",
+          "year": "2023",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/37801348/"
+        }
+      ],
+      "source_urls": [
+        "https://api.fda.gov/drug/event.json?search=patient.drug.openfda.brand_name:%22OZEMPIC%22+AND+patient.reaction.reactionmeddrapt.exact:%22GASTROPARESIS%22",
+        "https://pubmed.ncbi.nlm.nih.gov/37801348/"
+      ]
+    },
+    "HYPOGLYCAEMIA": {
+      "reaction": "HYPOGLYCAEMIA",
+      "a": 2980,
+      "b": 43020,
+      "c": 112000,
+      "d": 19830000,
+      "total_drug": 46000,
+      "total_reaction": 114980,
+      "prr": 11.47,
+      "prr_ci_lower": 11.06,
+      "prr_ci_upper": 11.90,
+      "ror": 12.27,
+      "ror_ci_lower": 11.82,
+      "ror_ci_upper": 12.73,
+      "chi_square": 29640.7,
+      "signal_flag": true,
+      "is_in_label": true,
+      "label_section": "warnings_and_precautions",
+      "label_snippet": "The risk of hypoglycemia is increased when OZEMPIC is used in combination with insulin secretagogues or insulin.",
+      "pubmed_articles": [],
+      "source_urls": [
+        "https://api.fda.gov/drug/event.json?search=patient.drug.openfda.brand_name:%22OZEMPIC%22"
+      ]
+    }
+  },
+  "assessment": {
+    "drug": "Ozempic",
+    "executive_summary": "Surveillance of Ozempic (semaglutide) identified prominent reporting disproportionality for gastrointestinal motility disorders. While pancreatitis and hypoglycemia are recognized labeled risks, Gastroparesis constitutes a major prospective unlabeled signal.",
+    "signals": [
+      {
+        "reaction": "PANCREATITIS",
+        "prr": 34.42,
+        "ror": 37.62,
+        "signal_flag": true,
+        "is_in_label": true,
+        "label_status": "Labeled (warnings_and_precautions)",
+        "clinical_note": "Expected GLP-1 receptor agonist warning; 0.3% rate in trials."
+      },
+      {
+        "reaction": "GASTROPARESIS",
+        "prr": 85.73,
+        "ror": 89.24,
+        "signal_flag": true,
+        "is_in_label": false,
+        "label_status": "UNLABELED in FDA insert",
+        "clinical_note": "Massive disproportionality signal; supported by recent epidemiologic cohort literature (PMID 37801348)."
+      },
+      {
+        "reaction": "HYPOGLYCAEMIA",
+        "prr": 11.47,
+        "ror": 12.27,
+        "signal_flag": true,
+        "is_in_label": true,
+        "label_status": "Labeled (warnings_and_precautions)",
+        "clinical_note": "Known labeled interaction risk with concomitant secretagogues/insulin."
+      }
+    ],
+    "detailed_findings": "Post-marketing FAERS reporting demonstrates exceptionally strong disproportionality signals for Gastroparesis (PRR 85.73, ROR 89.24, Chi² 142,100). Although gastrointestinal side effects such as nausea and vomiting are widely labeled, severe persistent gastric delay is unlabeled in the primary warnings section. Peer-reviewed literature (JAMA, PMID 37801348) aligns with this spontaneous reporting signal. Pancreatitis (PRR 34.42) and Hypoglycemia (PRR 11.47) align with current package insert advisories.",
+    "clinical_recommendation": "Prescribers should evaluate gastrointestinal motility symptoms and consider dose reduction or cessation if persistent severe gastric delay occurs.",
+    "limitations": "FAERS data reflects spontaneous reports where causation is unproven. Widespread public attention may contribute to selective reporting bias. True population incidence cannot be derived.",
+    "disclaimer": "Educational demonstration only. Not intended for individual clinical decision making.",
+    "citations": [
+      "https://api.fda.gov/drug/event.json?search=patient.drug.openfda.brand_name:%22OZEMPIC%22",
+      "https://api.fda.gov/drug/label.json?search=openfda.brand_name:%22OZEMPIC%22",
+      "https://pubmed.ncbi.nlm.nih.gov/37801348/"
+    ]
+  }
+}
+

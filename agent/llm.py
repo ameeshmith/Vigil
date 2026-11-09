@@ -12,15 +12,16 @@ DEFAULT_CRITIC_MODEL = os.environ.get("GROQ_CRITIC_MODEL", "llama-3.3-70b-versat
 def get_chat_model(
     model_name: Optional[str] = None,
     temperature: float = 0.0,
-    is_critic: bool = False
+    is_critic: bool = False,
+    api_key: Optional[str] = None
 ) -> ChatGroq:
     """Instantiate a ChatGroq client with requested configuration."""
-    api_key = os.environ.get("GROQ_API_KEY", "")
+    resolved_api_key = api_key or os.environ.get("GROQ_API_KEY", "")
     if not model_name:
         model_name = DEFAULT_CRITIC_MODEL if is_critic else DEFAULT_MODEL
     
     return ChatGroq(
-        api_key=api_key or "gsk_dummy_key_for_testing",
+        api_key=resolved_api_key or "gsk_dummy_key_for_testing",
         model=model_name,
         temperature=temperature,
         max_retries=0  # Handled in custom resilient loop for SSE trace visibility
@@ -91,10 +92,11 @@ async def call_llm_with_resilience(
 
 async def generate_structured_assessment(
     prompt: str,
-    on_trace_event: Optional[Callable[[str, str], Any]] = None
+    on_trace_event: Optional[Callable[[str, str], Any]] = None,
+    api_key: Optional[str] = None
 ) -> FinalAssessment:
     """Generate structured FinalAssessment using Pydantic output schema, with 1 retry on validation failure."""
-    llm = get_chat_model(temperature=0.0)
+    llm = get_chat_model(temperature=0.0, api_key=api_key)
     structured_llm = llm.with_structured_output(FinalAssessment)
 
     for attempt in range(2):

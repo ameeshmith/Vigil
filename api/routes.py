@@ -8,16 +8,14 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from langgraph.types import Command
-from langgraph.checkpoint.memory import MemorySaver
-
 from agent.state import AgentState
-from agent.graph import build_safety_agent_graph
+from agent.graph import build_safety_agent_graph, get_default_checkpointer
 
 router = APIRouter(prefix="/api")
 
-# In-memory storage for active runs and graph checkpointer
+# In-memory storage for active runs and persistent graph checkpointer
 RUNS: Dict[str, Dict[str, Any]] = {}
-CHECKPOINTER = MemorySaver()
+CHECKPOINTER = get_default_checkpointer()
 GRAPH = build_safety_agent_graph(checkpointer=CHECKPOINTER)
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 os.makedirs(DATA_DIR, exist_ok=True)

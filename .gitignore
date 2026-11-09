@@ -31,6 +31,8 @@ dist/
 *.sqlite
 *.sqlite3
 data/*.json
+!data/run_atorvastatin.json
+!data/run_ozempic.json
 
 # Logs
 *.log

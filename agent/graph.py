@@ -1,8 +1,11 @@
+import os
 import time
 import asyncio
+import sqlite3
 from typing import Dict, Any, List, Optional, Literal
 from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.memory import MemorySaver
+from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.types import interrupt, Command
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 
@@ -27,7 +30,7 @@ def add_event(state: AgentState, node: str, event_type: str, message: str, data:
     }
     state.events.append(evt)
 
-async def resolve_drug_active_ingredient(raw_drug: str) -> Optional[Dict[str, str]]:
+async def resolve_drug_active_ingredient(raw_drug: str, api_key: Optional[str] = None) -> Optional[Dict[str, str]]:
     """Map international trade names, combination drugs, or dosage brands to active generic ingredients."""
     prompt = f"""You are a clinical pharmacologist.
 Given drug name: '{raw_drug}':
@@ -39,7 +42,7 @@ If it is already a generic name, respond with:
 {{"generic_name": "{raw_drug}", "notes": ""}}
 """
     try:
-        llm = get_chat_model(temperature=0.0)
+        llm = get_chat_model(temperature=0.0, api_key=api_key)
         res = await llm.ainvoke([
             SystemMessage(content="You are a clinical pharmacovigilance specialist. Output strictly JSON."),
             HumanMessage(content=prompt)
@@ -73,7 +76,7 @@ async def intake_node(state: AgentState) -> Dict[str, Any]:
     # If not found or low report volume (< 5 reactions), attempt clinical generic resolution
     if len(reactions) < 5:
         add_event(state, "intake", "node_step", f"Low or zero reports for trade name '{clean_name}'. Resolving active pharmaceutical ingredients...")
-        resolved = await resolve_drug_active_ingredient(drug)
+        resolved = await resolve_drug_active_ingredient(drug, api_key=state.api_key)
         if resolved and resolved.get("generic_name") and resolved["generic_name"].strip().upper() != clean_name.upper():
             gen_name = resolved["generic_name"].strip().upper()
             add_event(state, "intake", "tool_call", f"Querying FAERS for resolved active generic ingredient: '{gen_name}'", {
@@ -138,7 +141,7 @@ Avoid prioritizing non-specific or mild symptoms (e.g., nausea, headache) unless
 Respond ONLY with a JSON list of reaction names matching exactly the names from the list above.
 Example: ["RHABDOMYOLYSIS", "ACUTE KIDNEY INJURY", "HEPATIC ENZYME INCREASED"]
 """
-    llm = get_chat_model(temperature=0.0)
+    llm = get_chat_model(temperature=0.0, api_key=state.api_key)
     try:
         response = await call_llm_with_resilience(
             llm=llm,
@@ -359,7 +362,7 @@ MANDATORY RULES:
 
 Draft an executive, structured summary.
 """
-    llm = get_chat_model(temperature=0.0)
+    llm = get_chat_model(temperature=0.0, api_key=state.api_key)
     try:
         response = await call_llm_with_resilience(
             llm=llm,
@@ -534,6 +537,32 @@ def route_human_review(state: AgentState) -> Literal["investigator", END]:
         return "investigator"
     return END
 
+class AsyncCapableSqliteSaver(SqliteSaver):
+    """SQLite checkpointer supporting both synchronous and asynchronous LangGraph execution."""
+    async def aget_tuple(self, config: Any) -> Any:
+        return self.get_tuple(config)
+
+    async def aput(self, config: Any, checkpoint: Any, metadata: Any, new_versions: Any) -> Any:
+        return self.put(config, checkpoint, metadata, new_versions)
+
+    async def aput_writes(self, config: Any, writes: Any, task_id: str, task_path: str = "") -> Any:
+        return self.put_writes(config, writes, task_id, task_path)
+
+    async def alist(self, config: Any, *, filter: Optional[Dict[str, Any]] = None, before: Any = None, limit: Optional[int] = None):
+        for item in self.list(config, filter=filter, before=before, limit=limit):
+            yield item
+
+def get_default_checkpointer() -> Any:
+    """Provide persistent SQLite checkpointer so runs survive restarts."""
+    try:
+        data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+        os.makedirs(data_dir, exist_ok=True)
+        db_path = os.path.join(data_dir, "checkpoints.db")
+        conn = sqlite3.connect(db_path, check_same_thread=False)
+        return AsyncCapableSqliteSaver(conn)
+    except Exception:
+        return MemorySaver()
+
 def build_safety_agent_graph(checkpointer: Optional[Any] = None):
     """Build the LangGraph workflow."""
     builder = StateGraph(AgentState)
@@ -554,7 +583,7 @@ def build_safety_agent_graph(checkpointer: Optional[Any] = None):
     builder.add_conditional_edges("human_review", route_human_review)
 
     if checkpointer is None:
-        checkpointer = MemorySaver()
+        checkpointer = get_default_checkpointer()
 
     return builder.compile(checkpointer=checkpointer)
 

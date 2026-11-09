@@ -1,5 +1,6 @@
 import math
 from typing import Dict, Any
+from mcp_server.constants import DISCLAIMER, current_iso_timestamp
 
 def compute_disproportionality(a: int, b: int, c: int, d: int) -> Dict[str, Any]:
     """
@@ -28,6 +29,8 @@ def compute_disproportionality(a: int, b: int, c: int, d: int) -> Dict[str, Any]
     n_none = b + d
     n_total = a + b + c + d
     
+    timestamp = current_iso_timestamp()
+
     if n_drug <= 0 or n_other <= 0 or n_reaction <= 0 or n_none <= 0 or a < 0 or b < 0 or c < 0 or d < 0:
         return {
             "a": a,
@@ -48,7 +51,10 @@ def compute_disproportionality(a: int, b: int, c: int, d: int) -> Dict[str, Any]
                 "prr_threshold": False,
                 "chi_square_threshold": False
             },
-            "source": "Formula: Evans et al. (2001) Pharmacovigilance criteria"
+            "source": "Formula: Evans et al. (2001) Pharmacovigilance criteria",
+            "data_source": "Deterministic Local Python Math",
+            "retrieved_at": timestamp,
+            "disclaimer": DISCLAIMER
         }
 
     # 1. Proportional Reporting Ratio (PRR)
@@ -120,6 +126,8 @@ def compute_disproportionality(a: int, b: int, c: int, d: int) -> Dict[str, Any]
             "prr_threshold": prr_ok,
             "chi_square_threshold": chi_ok
         },
-        "source": "Formula: Evans SJ et al. (2001) Pharmacoepidemiol Drug Saf 10(6):483-6"
+        "source": "Formula: Evans SJ et al. (2001) Pharmacoepidemiol Drug Saf 10(6):483-6",
+        "data_source": "Deterministic Local Python Math",
+        "retrieved_at": timestamp,
+        "disclaimer": DISCLAIMER
     }
-
